@@ -9,26 +9,32 @@ const UserCreate = () => {
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [role, setRole] = useState('user');
   const [birthdate, setBirthdate] = useState('');
+  const [avatar, setAvatar] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleAvatarChange = (e) => {
+    setAvatar(e.target.files[0]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = {
-      username,
-      email,
-      emailVisibility: true,
-      password,
-      passwordConfirm,
-      birthdate,
-      role,
-      bids: [],
-      auctions: []
-    };
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('email', email);
+    formData.append('emailVisibility', true);
+    formData.append('password', password);
+    formData.append('passwordConfirm', passwordConfirm);
+    formData.append('birthdate', birthdate);
+    formData.append('role', role);
+
+    if (avatar) {
+      formData.append('avatar', avatar);
+    }
 
     try {
-      const record = await pb.collection('users').create(data);
+      await pb.collection('users').create(formData);
       await pb.collection('users').requestVerification(email);
       navigate('/users');
     } catch (error) {
@@ -97,6 +103,11 @@ const UserCreate = () => {
             onChange={(e) => setBirthdate(e.target.value)}
             required
           />
+        </label>
+        <br />
+        <label>
+          Avatar:
+          <input type="file" onChange={handleAvatarChange} />
         </label>
         <br />
         <button type="submit">Create</button>
