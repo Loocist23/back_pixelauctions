@@ -4,19 +4,39 @@ import pb from '../../pocketbase';
 
 const AuctionList = () => {
   const [auctions, setAuctions] = useState([]);
+  const [users, setUsers] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
     const controller = new AbortController();
+
     const fetchAuctions = async () => {
       try {
         const auctionsList = await pb.collection('auctions').getFullList({ $cancelToken: controller.signal });
         setAuctions(auctionsList);
+
+        console.log(auctionsList);
+
+        // Fetch associated users
+        const userIds = [...new Set(auctionsList.map(auction => auction.userId))];
+        const usersList = await Promise.all(userIds.filter(id => id !== undefined).map(id => {
+          console.log("Fetching user with id:", id); // Log the id
+          return pb.collection('users').getOne(id).catch((error) => {
+            console.log("Error fetching user with id:", id, "Error:", error); // Log the error
+            return null;
+          });
+        }));     
+        const usersMap = usersList.filter(user => user).reduce((acc, user) => {
+          acc[user.id] = user;
+          return acc;
+        }, {});
+        console.log(usersList);
+        setUsers(usersMap);
       } catch (error) {
         if (error.name === 'AbortError') {
           console.log('Fetch cancelled');
         } else {
-          console.error("Error fetching auctions:", error);
+          console.error("Error fetching auctions or users:", error);
         }
       }
     };
@@ -52,6 +72,7 @@ const AuctionList = () => {
             <th>Description</th>
             <th>Prix de départ</th>
             <th>Status</th>
+            <th>Utilisateur</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -62,6 +83,15 @@ const AuctionList = () => {
               <td>{auction.description}</td>
               <td>{auction.startingPrice}</td>
               <td>{auction.status}</td>
+              <td>
+                {users[auction.userId] ? (
+                  <Link to={`/users/view/${auction.userId}`}>
+                    {users[auction.userId].username}
+                  </Link>
+                ) : (
+                  'Utilisateur inconnu'
+                )}
+              </td>
               <td>
                 <button onClick={() => handleEdit(auction.id)}>Modifier</button>
                 <button onClick={() => handleDelete(auction.id)}>Supprimer</button>
