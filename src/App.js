@@ -1,12 +1,21 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Home from './pages/Home';
-import CreateAuction from './pages/CreateAuction';
-import Auctions from './pages/Auctions';
-import Bids from './pages/Bids';
-import EditAuction from './pages/EditAuction';
-import EditBid from './pages/EditBid';
-import Login from './pages/Login';
+import {
+  Home,
+  CreateAuction,
+  Auctions,
+  EditAuction,
+  AuctionView,
+  CreateBid,
+  Bids,
+  EditBid,
+  BidView,
+  Login,
+  UserList,
+  UserEdit,
+  UserCreate,
+  UserView
+} from './pages';
 import pb from './pocketbase';
 
 const PrivateRoute = ({ element }) => {
@@ -21,9 +30,16 @@ function App() {
         <Route path="/" element={<PrivateRoute element={<Home />} />} />
         <Route path="/create-auction" element={<PrivateRoute element={<CreateAuction />} />} />
         <Route path="/auctions" element={<PrivateRoute element={<Auctions />} />} />
+        <Route path="/auctions/edit/:id" element={<PrivateRoute element={<EditAuction />} />} />
+        <Route path="/auctions/:id" element={<PrivateRoute element={<AuctionView />} />} />
+        <Route path="/create-bid" element={<PrivateRoute element={<CreateBid />} />} />
         <Route path="/bids" element={<PrivateRoute element={<Bids />} />} />
-        <Route path="/edit-auction/:id" element={<PrivateRoute element={<EditAuction />} />} />
-        <Route path="/edit-bid/:id" element={<PrivateRoute element={<EditBid />} />} />
+        <Route path="/bids/edit/:id" element={<PrivateRoute element={<EditBid />} />} />
+        <Route path="/bids/:id" element={<PrivateRoute element={<BidView />} />} />
+        <Route path="/users" element={<PrivateRoute element={<UserList />} />} />
+        <Route path="/users/create" element={<PrivateRoute element={<UserCreate />} />} />
+        <Route path="/users/edit/:id" element={<PrivateRoute element={<UserEdit />} />} />
+        <Route path="/users/view/:id" element={<PrivateRoute element={<UserView />} />} />
       </Routes>
     </Router>
   );

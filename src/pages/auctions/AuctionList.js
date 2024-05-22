@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import pb from '../pocketbase';
+import { Link, useNavigate } from 'react-router-dom';
+import pb from '../../pocketbase';
 
-const Auctions = () => {
+const AuctionList = () => {
   const [auctions, setAuctions] = useState([]);
   const navigate = useNavigate();
 
@@ -38,12 +38,13 @@ const Auctions = () => {
   };
 
   const handleEdit = (id) => {
-    navigate(`/edit-auction/${id}`);
+    navigate(`/auctions/edit/${id}`);
   };
 
   return (
     <div>
       <h1>Liste des enchères</h1>
+      <Link to="/auctions/create">Créer une enchère</Link>
       <table>
         <thead>
           <tr>
@@ -73,4 +74,4 @@ const Auctions = () => {
   );
 };
 
-export default Auctions;
+export default AuctionList;

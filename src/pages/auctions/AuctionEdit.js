@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import pb from '../pocketbase';
+import pb from '../../pocketbase';
 
-const EditAuction = () => {
+const AuctionEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [auction, setAuction] = useState(null);
@@ -70,5 +70,4 @@ const EditAuction = () => {
   );
 };
 
-export default EditAuction;
-    
+export default AuctionEdit;
