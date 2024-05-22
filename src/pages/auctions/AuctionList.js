@@ -20,7 +20,6 @@ const AuctionList = () => {
         // Fetch associated users
         const userIds = [...new Set(auctionsList.map(auction => auction.userId))];
         const usersList = await Promise.all(userIds.filter(id => id !== undefined).map(id => {
-          console.log("Fetching user with id:", id); // Log the id
           return pb.collection('users').getOne(id).catch((error) => {
             console.log("Error fetching user with id:", id, "Error:", error); // Log the error
             return null;
