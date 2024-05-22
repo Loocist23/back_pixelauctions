@@ -7,22 +7,32 @@ const AuctionCreate = () => {
   const [description, setDescription] = useState('');
   const [startingPrice, setStartingPrice] = useState('');
   const [status, setStatus] = useState('open');
+  const [images, setImages] = useState([]);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleImagesChange = (e) => {
+    setImages(e.target.files);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = {
-      title,
-      description,
-      startingPrice,
-      status,
-    };
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('startingPrice', startingPrice);
+    formData.append('status', status);
+
+    for (let i = 0; i < images.length; i++) {
+      formData.append('images', images[i]);
+    }
 
     try {
-      await pb.collection('auctions').create(data);
+      await pb.collection('auctions').create(formData);
       navigate('/auctions');
     } catch (error) {
+      setError('Failed to create auction');
       console.error("Error creating auction:", error);
     }
   };
@@ -69,8 +79,14 @@ const AuctionCreate = () => {
           </select>
         </label>
         <br />
+        <label>
+          Images:
+          <input type="file" multiple onChange={handleImagesChange} />
+        </label>
+        <br />
         <button type="submit">Créer</button>
       </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };

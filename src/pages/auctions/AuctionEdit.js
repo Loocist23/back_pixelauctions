@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import pb from '../../pocketbase';
 
@@ -6,12 +6,24 @@ const AuctionEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [auction, setAuction] = useState(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [startingPrice, setStartingPrice] = useState('');
+  const [status, setStatus] = useState('open');
+  const [images, setImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchAuction = async () => {
       try {
         const auctionData = await pb.collection('auctions').getOne(id);
         setAuction(auctionData);
+        setTitle(auctionData.title);
+        setDescription(auctionData.description);
+        setStartingPrice(auctionData.startingPrice);
+        setStatus(auctionData.status);
+        setExistingImages(auctionData.images || []);
       } catch (error) {
         console.error("Error fetching auction:", error);
       }
@@ -20,17 +32,39 @@ const AuctionEdit = () => {
     fetchAuction();
   }, [id]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setAuction({ ...auction, [name]: value });
+  const handleImagesChange = (e) => {
+    setImages(e.target.files);
+  };
+
+  const handleDeleteImage = async (filename) => {
+    try {
+      await pb.collection('auctions').update(id, {
+        'images-': [filename]
+      });
+      setExistingImages(existingImages.filter(image => image !== filename));
+    } catch (error) {
+      console.error("Error deleting image:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('startingPrice', startingPrice);
+    formData.append('status', status);
+
+    for (let i = 0; i < images.length; i++) {
+      formData.append('images', images[i]);
+    }
+
     try {
-      await pb.collection('auctions').update(id, auction);
+      await pb.collection('auctions').update(id, formData);
       navigate('/auctions');
     } catch (error) {
+      setError('Failed to update auction');
       console.error("Error updating auction:", error);
     }
   };
@@ -43,29 +77,59 @@ const AuctionEdit = () => {
       <form onSubmit={handleSubmit}>
         <label>
           Titre:
-          <input type="text" name="title" value={auction.title} onChange={handleChange} />
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
         </label>
         <br />
         <label>
           Description:
-          <input type="text" name="description" value={auction.description} onChange={handleChange} />
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
         </label>
         <br />
         <label>
           Prix de départ:
-          <input type="number" name="startingPrice" value={auction.startingPrice} onChange={handleChange} />
+          <input
+            type="number"
+            value={startingPrice}
+            onChange={(e) => setStartingPrice(e.target.value)}
+            required
+          />
         </label>
         <br />
         <label>
           Status:
-          <select name="status" value={auction.status} onChange={handleChange}>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} required>
             <option value="open">Open</option>
             <option value="closed">Closed</option>
           </select>
         </label>
         <br />
+        <label>
+          Images:
+          <input type="file" multiple onChange={handleImagesChange} />
+        </label>
+        <br />
+        <div>
+          <h3>Images existantes</h3>
+          {existingImages.map((image) => (
+            <div key={image}>
+              <img src={pb.files.getUrl(auction, image)} alt="Auction Image" style={{ width: '100px', height: '100px' }} />
+              <button type="button" onClick={() => handleDeleteImage(image)}>Supprimer</button>
+            </div>
+          ))}
+        </div>
         <button type="submit">Enregistrer</button>
       </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };
