@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import pb from '../../pocketbase';
+import '../../styles/users.css'; // Import the CSS file
 
 const UserEdit = () => {
+  document.title = "Modification d'utilisateur";
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -73,61 +75,56 @@ const UserEdit = () => {
   if (!user) return <div>Loading...</div>;
 
   return (
-    <div>
-      <h1>Modifier l'utilisateur</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Username:
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Email:
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Role:
-          <select value={role} onChange={(e) => setRole(e.target.value)} required>
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          Birthdate:
-          <input
-            type="date"
-            value={birthdate}
-            onChange={(e) => setBirthdate(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Avatar:
-          <input type="file" onChange={handleAvatarChange} />
-        </label>
-        <br />
-        {avatarUrl && (
-          <div>
-            <img src={avatarUrl} alt="User Avatar" style={{ width: '100px', height: '100px' }} />
-          </div>
-        )}
-        <button type="submit">Enregistrer</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+      <div className="container">
+        <h1>Modifier l'utilisateur</h1>
+        <form onSubmit={handleSubmit}>
+          <label>
+            Username:
+            <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Email:
+            <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Role:
+            <select value={role} onChange={(e) => setRole(e.target.value)} required>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
+          <label>
+            Birthdate:
+            <input
+                type="date"
+                value={birthdate}
+                onChange={(e) => setBirthdate(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Avatar:
+            <input type="file" onChange={handleAvatarChange} />
+          </label>
+          {avatarUrl && (
+              <div>
+                <img src={avatarUrl} alt="User Avatar" style={{ width: '100px', height: '100px' }} />
+              </div>
+          )}
+          <button type="submit">Enregistrer</button>
+        </form>
+        {error && <p id="error-message">{error}</p>}
+      </div>
   );
 };
 

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import pb from '../../pocketbase';
+import '../../styles/auctions.css'; // Import the CSS file
 
 const AuctionCreate = () => {
+  document.title = "Creation d'Enchere";
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startingPrice, setStartingPrice] = useState('');
@@ -38,56 +40,51 @@ const AuctionCreate = () => {
   };
 
   return (
-    <div>
-      <h1>Créer une nouvelle enchère</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Titre:
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Description:
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Prix de départ:
-          <input
-            type="number"
-            value={startingPrice}
-            onChange={(e) => setStartingPrice(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Status:
-          <select value={status} onChange={(e) => setStatus(e.target.value)} required>
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          Images:
-          <input type="file" multiple onChange={handleImagesChange} />
-        </label>
-        <br />
-        <button type="submit">Créer</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+      <div className="container">
+        <h1>Créer une nouvelle enchère</h1>
+        <form onSubmit={handleSubmit}>
+          <label>
+            Titre:
+            <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Description:
+            <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Prix de départ:
+            <input
+                type="number"
+                value={startingPrice}
+                onChange={(e) => setStartingPrice(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Status:
+            <select value={status} onChange={(e) => setStatus(e.target.value)} required>
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </select>
+          </label>
+          <label>
+            Images:
+            <input type="file" multiple onChange={handleImagesChange} />
+          </label>
+          <button type="submit">Créer</button>
+        </form>
+        {error && <p id="error-message">{error}</p>}
+      </div>
   );
 };
 

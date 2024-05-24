@@ -1,6 +1,7 @@
 import React from 'react';
 
 const Home = () => {
+    document.title = "Acceuil";
   return (
     <div>
       <h1>Bienvenue sur PixelAuction</h1>

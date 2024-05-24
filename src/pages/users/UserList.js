@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import pb from '../../pocketbase';
+import '../../styles/users.css'; // Import the CSS file
 
 const UserList = () => {
+  document.title = "Gestion des utilisateurs";
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
@@ -42,11 +44,11 @@ const UserList = () => {
   };
 
   return (
-    <div>
-      <h1>Liste des utilisateurs</h1>
-      <Link to="/users/create">Créer un utilisateur</Link>
-      <table>
-        <thead>
+      <div className="container">
+        <h1>Liste des utilisateurs</h1>
+        <Link to="/users/create">Créer un utilisateur</Link>
+        <table>
+          <thead>
           <tr>
             <th>Email</th>
             <th>Nom d'utilisateur</th>
@@ -54,23 +56,23 @@ const UserList = () => {
             <th>Date de naissance</th>
             <th>Actions</th>
           </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
           {users.map(user => (
-            <tr key={user.id}>
-              <td>{user.email}</td>
-              <td>{user.username}</td>
-              <td>{user.role}</td>
-              <td>{new Date(user.birthdate).toLocaleDateString()}</td>
-              <td>
-                <button onClick={() => handleEdit(user.id)}>Modifier</button>
-                <button onClick={() => handleDelete(user.id)}>Supprimer</button>
-              </td>
-            </tr>
+              <tr key={user.id}>
+                <td>{user.email}</td>
+                <td>{user.username}</td>
+                <td>{user.role}</td>
+                <td>{new Date(user.birthdate).toLocaleDateString()}</td>
+                <td className="actions">
+                  <button onClick={() => handleEdit(user.id)}>Modifier</button>
+                  <button onClick={() => handleDelete(user.id)}>Supprimer</button>
+                </td>
+              </tr>
           ))}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
   );
 };
 

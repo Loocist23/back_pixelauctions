@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import pb from '../../pocketbase';
+import '../../styles/bids.css'; // Import the CSS file
 
 const EditBid = () => {
+    document.title = "Modification d'offre";
     const { id } = useParams();
     const navigate = useNavigate();
     const [bid, setBid] = useState(null);
@@ -38,14 +40,13 @@ const EditBid = () => {
     if (!bid) return <div>Loading...</div>;
 
     return (
-        <div>
+        <div className="container">
             <h1>Modifier l'offre</h1>
             <form onSubmit={handleSubmit}>
                 <label>
                     Montant:
                     <input type="number" name="amount" value={bid.amount} onChange={handleChange} />
                 </label>
-                <br />
                 <label>
                     Status:
                     <select name="status" value={bid.status} onChange={handleChange}>
@@ -54,7 +55,6 @@ const EditBid = () => {
                         <option value="rejected">Rejected</option>
                     </select>
                 </label>
-                <br />
                 <button type="submit">Enregistrer</button>
             </form>
         </div>

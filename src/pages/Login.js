@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import pb from '../pocketbase';
+import '../styles/login.css'; // Import the login CSS
 
 const Login = () => {
+  document.title = "Login";
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const authData = await pb.collection('users').authWithPassword(email, password);
-      
+
       console.log("Auth Data:", authData);  // Log the authentication data
 
       // Check if the user is an admin
@@ -33,23 +35,24 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h1>Admin Login</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Email:
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </label>
-        <br />
-        <button type="submit">Login</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+      <div id={"login"}>
+        <div id="login-container">
+          <h1>Admin Login</h1>
+          <form onSubmit={handleSubmit}>
+            <label>
+              Email:
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required/>
+            </label>
+            <label>
+              Password:
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
+            </label>
+            <button type="submit">Login</button>
+          </form>
+          {error && <p id="error-message">{error}</p>}
+        </div>
+      </div>
+
   );
 };
 

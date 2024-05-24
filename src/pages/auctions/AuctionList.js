@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import pb from '../../pocketbase';
+import '../../styles/auctions.css'; // Import the CSS file
 
 const AuctionList = () => {
+  document.title = "Gestion des Encheres";
   const [auctions, setAuctions] = useState([]);
   const [users, setUsers] = useState({});
   const navigate = useNavigate();
@@ -15,8 +17,6 @@ const AuctionList = () => {
         const auctionsList = await pb.collection('auctions').getFullList({ $cancelToken: controller.signal });
         setAuctions(auctionsList);
 
-        console.log(auctionsList);
-
         // Fetch associated users
         const userIds = [...new Set(auctionsList.map(auction => auction.userId))];
         const usersList = await Promise.all(userIds.filter(id => id !== undefined).map(id => {
@@ -24,12 +24,11 @@ const AuctionList = () => {
             console.log("Error fetching user with id:", id, "Error:", error); // Log the error
             return null;
           });
-        }));     
+        }));
         const usersMap = usersList.filter(user => user).reduce((acc, user) => {
           acc[user.id] = user;
           return acc;
         }, {});
-        console.log(usersList);
         setUsers(usersMap);
       } catch (error) {
         if (error.name === 'AbortError') {
@@ -61,11 +60,11 @@ const AuctionList = () => {
   };
 
   return (
-    <div>
-      <h1>Liste des enchères</h1>
-      <Link to="/auctions/create">Créer une enchère</Link>
-      <table>
-        <thead>
+      <div className="container">
+        <h1>Liste des enchères</h1>
+        <Link to="/auctions/create">Créer une enchère</Link>
+        <table>
+          <thead>
           <tr>
             <th>Titre</th>
             <th>Description</th>
@@ -74,32 +73,32 @@ const AuctionList = () => {
             <th>Utilisateur</th>
             <th>Actions</th>
           </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
           {auctions.map(auction => (
-            <tr key={auction.id}>
-              <td>{auction.title}</td>
-              <td>{auction.description}</td>
-              <td>{auction.startingPrice}</td>
-              <td>{auction.status}</td>
-              <td>
-                {users[auction.userId] ? (
-                  <Link to={`/users/view/${auction.userId}`}>
-                    {users[auction.userId].username}
-                  </Link>
-                ) : (
-                  'Utilisateur inconnu'
-                )}
-              </td>
-              <td>
-                <button onClick={() => handleEdit(auction.id)}>Modifier</button>
-                <button onClick={() => handleDelete(auction.id)}>Supprimer</button>
-              </td>
-            </tr>
+              <tr key={auction.id}>
+                <td>{auction.title}</td>
+                <td>{auction.description}</td>
+                <td>{auction.startingPrice}</td>
+                <td>{auction.status}</td>
+                <td>
+                  {users[auction.userId] ? (
+                      <Link to={`/users/view/${auction.userId}`}>
+                        {users[auction.userId].username}
+                      </Link>
+                  ) : (
+                      'Utilisateur inconnu'
+                  )}
+                </td>
+                <td className="actions">
+                  <button onClick={() => handleEdit(auction.id)}>Modifier</button>
+                  <button onClick={() => handleDelete(auction.id)}>Supprimer</button>
+                </td>
+              </tr>
           ))}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
   );
 };
 

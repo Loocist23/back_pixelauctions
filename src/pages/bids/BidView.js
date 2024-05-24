@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import pb from '../../pocketbase';
+import '../../styles/bids.css'; // Import the CSS file
 
 const BidView = () => {
+    document.title = "Offre";
     const { id } = useParams();
     const [bid, setBid] = useState(null);
     const [user, setUser] = useState(null);
@@ -34,7 +36,7 @@ const BidView = () => {
     if (!bid) return <div>Loading...</div>;
 
     return (
-        <div>
+        <div className="container">
             <h1>Détails de l'offre</h1>
             <p>Montant: {bid.amount}</p>
             <p>Status: {bid.status}</p>

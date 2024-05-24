@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import pb from '../../pocketbase';
+import '../../styles/bids.css'; // Import the CSS file
 
 const BidList = () => {
+  document.title = "Gestion des Offres";
   const [bids, setBids] = useState([]);
   const [users, setUsers] = useState({});
   const [auctions, setAuctions] = useState({});
@@ -55,10 +57,10 @@ const BidList = () => {
   };
 
   return (
-    <div>
-      <h1>Liste des offres</h1>
-      <table>
-        <thead>
+      <div className="container">
+        <h1>Liste des offres</h1>
+        <table>
+          <thead>
           <tr>
             <th>Utilisateur</th>
             <th>Enchère</th>
@@ -66,31 +68,31 @@ const BidList = () => {
             <th>Status</th>
             <th>Actions</th>
           </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
           {bids.map(bid => (
-            <tr key={bid.id}>
-              <td>
-                <Link to={`/users/view/${bid.userId}`}>
-                  {users[bid.userId]?.username || 'Inconnu'}
-                </Link>
-              </td>
-              <td>
-                <Link to={`/auctions/${bid.auctionId}`}>
-                  {auctions[bid.auctionId]?.title || 'Inconnu'}
-                </Link>
-              </td>
-              <td>{bid.amount}</td>
-              <td>{bid.status}</td>
-              <td>
-                <button onClick={() => handleEdit(bid.id)}>Modifier</button>
-                <button onClick={() => handleDelete(bid.id)}>Supprimer</button>
-              </td>
-            </tr>
+              <tr key={bid.id}>
+                <td>
+                  <Link to={`/users/view/${bid.userId}`}>
+                    {users[bid.userId]?.username || 'Inconnu'}
+                  </Link>
+                </td>
+                <td>
+                  <Link to={`/auctions/${bid.auctionId}`}>
+                    {auctions[bid.auctionId]?.title || 'Inconnu'}
+                  </Link>
+                </td>
+                <td>{bid.amount}</td>
+                <td>{bid.status}</td>
+                <td className="actions">
+                  <button onClick={() => handleEdit(bid.id)}>Modifier</button>
+                  <button onClick={() => handleDelete(bid.id)}>Supprimer</button>
+                </td>
+              </tr>
           ))}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
   );
 };
 

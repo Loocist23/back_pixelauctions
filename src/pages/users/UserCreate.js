@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import pb from '../../pocketbase';
+import '../../styles/users.css'; // Import the CSS file
 
 const UserCreate = () => {
+  document.title = "Creation d'utilisateur";
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,76 +46,69 @@ const UserCreate = () => {
   };
 
   return (
-    <div>
-      <h1>Create User</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Username:
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Email:
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Confirm Password:
-          <input
-            type="password"
-            value={passwordConfirm}
-            onChange={(e) => setPasswordConfirm(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Role:
-          <select value={role} onChange={(e) => setRole(e.target.value)} required>
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          Birthdate:
-          <input
-            type="date"
-            value={birthdate}
-            onChange={(e) => setBirthdate(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Avatar:
-          <input type="file" onChange={handleAvatarChange} />
-        </label>
-        <br />
-        <button type="submit">Create</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+      <div className="container">
+        <h1>Create User</h1>
+        <form onSubmit={handleSubmit}>
+          <label>
+            Username:
+            <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Email:
+            <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Password:
+            <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Confirm Password:
+            <input
+                type="password"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Role:
+            <select value={role} onChange={(e) => setRole(e.target.value)} required>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
+          <label>
+            Birthdate:
+            <input
+                type="date"
+                value={birthdate}
+                onChange={(e) => setBirthdate(e.target.value)}
+                required
+            />
+          </label>
+          <label>
+            Avatar:
+            <input type="file" onChange={handleAvatarChange} />
+          </label>
+          <button type="submit">Create</button>
+        </form>
+        {error && <p id="error-message">{error}</p>}
+      </div>
   );
 };
 
