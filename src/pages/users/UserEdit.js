@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../../styles/users.css'; // Import the CSS file
-import PocketBase from 'pocketbase';
-
-const pb = new PocketBase('https://pocketbase.0shura.fr');
 
 const UserEdit = () => {
   document.title = "Modification d'utilisateur";
@@ -18,37 +15,33 @@ const UserEdit = () => {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('');
   const [error, setError] = useState('');
-  const [favoriteAuctions, setFavoriteAuctions] = useState([]);
-  const [allAuctions, setAllAuctions] = useState([]);
 
   useEffect(() => {
-    const fetchUserAndAuctions = async () => {
+    const fetchUser = async () => {
       try {
-        const userResponse = await pb.collection('users').getOne(id, {
-          expand: 'favorite_auctions'
-        });
-        console.log('userData:', userResponse);
+        const response = await fetch(`http://localhost:3000/users/${id}`);
+        if (!response.ok) {
+          throw new Error('Error fetching user data');
+        }
+        const userData = await response.json();
+        console.log('userData:', userData);
 
-        setUser(userResponse);
-        setUsername(userResponse.username);
-        setEmail(userResponse.email);
-        setRole(userResponse.role);
-        setBirthdate(formatDate(userResponse.birthdate));
-        setFavoriteAuctions(userResponse.expand?.favorite_auctions || []);
+        setUser(userData);
+        setUsername(userData.username);
+        setEmail(userData.email);
+        setRole(userData.role);
+        setBirthdate(formatDate(userData.birthdate));
 
-        if (userResponse.avatar) {
-          const url = pb.files.getUrl(userResponse, userResponse.avatar);
+        if (userData.avatar) {
+          const url = `http://localhost:3000/users/${id}/avatar`;
           setAvatarUrl(url);
         }
-
-        const auctionsResponse = await pb.collection('auctions').getList(1, 100);
-        setAllAuctions(auctionsResponse.items);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching user:", error);
       }
     };
 
-    fetchUserAndAuctions();
+    fetchUser();
   }, [id]);
 
   const formatDate = (dateString) => {
@@ -63,33 +56,6 @@ const UserEdit = () => {
     const file = e.target.files[0];
     setAvatar(file);
     setAvatarPreview(URL.createObjectURL(file));
-  };
-
-  const handleFavoriteAuctionRemove = async (auctionId) => {
-    try {
-      const updatedFavoriteAuctions = favoriteAuctions.filter(auction => auction.id !== auctionId);
-      await pb.collection('users').update(id, {
-        'favorite_auctions-': auctionId
-      });
-      setFavoriteAuctions(updatedFavoriteAuctions);
-    } catch (error) {
-      console.error("Error removing favorite auction:", error);
-    }
-  };
-
-  const handleFavoriteAuctionAdd = async (e) => {
-    const auctionId = e.target.value;
-    if (auctionId && !favoriteAuctions.find(auction => auction.id === auctionId)) {
-      try {
-        await pb.collection('users').update(id, {
-          'favorite_auctions+': auctionId
-        });
-        const auction = allAuctions.find(auction => auction.id === auctionId);
-        setFavoriteAuctions([...favoriteAuctions, auction]);
-      } catch (error) {
-        console.error("Error adding favorite auction:", error);
-      }
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -171,22 +137,6 @@ const UserEdit = () => {
                 <img src={avatarPreview || avatarUrl} alt="User Avatar" style={{ width: '100px', height: '100px' }} />
               </div>
           )}
-          <label>
-            Favorite Auctions:
-            <ul>
-              {favoriteAuctions.map(auction => (
-                  <li key={auction.id}>
-                    {auction.title} <button type="button" onClick={() => handleFavoriteAuctionRemove(auction.id)}>Remove</button>
-                  </li>
-              ))}
-            </ul>
-            <select onChange={handleFavoriteAuctionAdd} value="">
-              <option value="" disabled>Select an auction to add</option>
-              {allAuctions.map(auction => (
-                  <option key={auction.id} value={auction.id}>{auction.title}</option>
-              ))}
-            </select>
-          </label>
           <button type="submit">Enregistrer</button>
         </form>
         {error && <p id="error-message">{error}</p>}
