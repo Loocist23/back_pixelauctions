@@ -8,6 +8,7 @@ const UserView = () => {
     const [user, setUser] = useState(null);
     const [auctions, setAuctions] = useState([]);
     const [bids, setBids] = useState([]);
+    const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -37,6 +38,15 @@ const UserView = () => {
                 }
                 const userBids = await bidsResponse.json();
                 setBids(userBids);
+
+                // Fetch user's favorite auctions
+                const favoritesResponse = await fetch(`http://localhost:3000/users/${id}/favorites`);
+                if (!favoritesResponse.ok) {
+                    throw new Error('Error fetching favorite auctions data');
+                }
+                const userFavorites = await favoritesResponse.json();
+                setFavorites(userFavorites.items.map(item => item.expand.Auction));
+
             } catch (error) {
                 console.error('Error fetching user data:', error);
                 setError('Error fetching user data');
@@ -83,6 +93,19 @@ const UserView = () => {
                     ))
                 ) : (
                     <p>Aucune offre trouvée</p>
+                )}
+            </ul>
+
+            <h2>Enchères favorites de {user.username}</h2>
+            <ul>
+                {favorites.length > 0 ? (
+                    favorites.map(favorite => (
+                        <li key={favorite.id}>
+                            <Link to={`/auctions/${favorite.id}`}>{favorite.title}</Link>
+                        </li>
+                    ))
+                ) : (
+                    <p>Aucune enchère favorite trouvée</p>
                 )}
             </ul>
         </div>
