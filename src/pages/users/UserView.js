@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import pb from '../../pocketbase';
 import '../../styles/users.css'; // Import the CSS file
 
 const UserView = () => {
@@ -9,34 +8,49 @@ const UserView = () => {
     const [user, setUser] = useState(null);
     const [auctions, setAuctions] = useState([]);
     const [bids, setBids] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
                 // Fetch user data
-                const userData = await pb.collection('users').getOne(id);
+                const userResponse = await fetch(`http://localhost:3000/users/${id}`);
+                if (!userResponse.ok) {
+                    throw new Error('Error fetching user data');
+                }
+                const userData = await userResponse.json();
                 setUser(userData);
 
                 // Fetch user's auctions
-                const userAuctions = await pb.collection('auctions').getFullList({
-                    filter: `userId = '${id}'`,
-                });
+                const auctionsResponse = await fetch(`http://localhost:3000/auctions?userId=${id}`);
+                if (!auctionsResponse.ok) {
+                    throw new Error('Error fetching auctions data');
+                }
+                const userAuctions = await auctionsResponse.json();
                 setAuctions(userAuctions);
 
                 // Fetch user's bids
-                const userBids = await pb.collection('bids').getFullList({
-                    filter: `userId = '${id}'`,
-                });
+                const bidsResponse = await fetch(`http://localhost:3000/bids?userId=${id}`);
+                if (!bidsResponse.ok) {
+                    throw new Error('Error fetching bids data');
+                }
+                const userBids = await bidsResponse.json();
                 setBids(userBids);
             } catch (error) {
                 console.error('Error fetching user data:', error);
+                setError('Error fetching user data');
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchUserData();
     }, [id]);
 
-    if (!user) return <div>Loading...</div>;
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>{error}</div>;
+    if (!user) return <div>User not found</div>;
 
     return (
         <div className="container">

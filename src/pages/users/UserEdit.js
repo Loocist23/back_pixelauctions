@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import pb from '../../pocketbase';
 import '../../styles/users.css'; // Import the CSS file
 
 const UserEdit = () => {
@@ -17,9 +16,16 @@ const UserEdit = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndAuctions = async () => {
       try {
-        const userData = await pb.collection('users').getOne(id);
+        const userResponse = await fetch(`http://localhost:3000/users/${id}`);
+        if (!userResponse.ok) {
+          throw new Error('Error fetching user data');
+        }
+        const userData = await userResponse.json();
+
+        console.log('userData:', userData);
+
         setUser(userData);
         setUsername(userData.username);
         setEmail(userData.email);
@@ -27,7 +33,7 @@ const UserEdit = () => {
         setBirthdate(formatDate(userData.birthdate));
 
         if (userData.avatar) {
-          const url = pb.files.getUrl(userData, userData.avatar);
+          const url = `http://localhost:3000/users/${id}/avatar`;
           setAvatarUrl(url);
         }
       } catch (error) {
@@ -35,7 +41,7 @@ const UserEdit = () => {
       }
     };
 
-    fetchUser();
+    fetchUserAndAuctions();
   }, [id]);
 
   const formatDate = (dateString) => {
@@ -64,7 +70,15 @@ const UserEdit = () => {
     }
 
     try {
-      await pb.collection('users').update(id, formData);
+      const response = await fetch(`http://localhost:3000/users/${id}`, {
+        method: 'PUT',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user');
+      }
+
       navigate('/users');
     } catch (error) {
       setError('Failed to update user');
