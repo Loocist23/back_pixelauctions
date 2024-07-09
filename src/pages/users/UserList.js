@@ -1,43 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import pb from '../../pocketbase';
+import api from '../../api'; // Utilisez api au lieu de pb directement
 import '../../styles/users.css'; // Import the CSS file
 
 const UserList = () => {
-  document.title = "Gestion des utilisateurs";
+  document.title = "Gestion Des Utilisateurs";
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const controller = new AbortController();
     const fetchUsers = async () => {
       try {
-        const usersList = await pb.collection('users').getFullList({ $cancelToken: controller.signal });
-        setUsers(usersList);
+        const { data } = await api.get('/users/all'); // Utilisez la route API Express
+        setUsers(data.items);
       } catch (error) {
-        if (error.name === 'AbortError') {
-          console.log('Fetch cancelled');
-        } else {
-          console.error("Error fetching users:", error);
-        }
+        console.error("Error fetching users:", error);
       }
     };
 
     fetchUsers();
-
-    return () => {
-      controller.abort();
-    };
   }, []);
 
   const handleDelete = async (id) => {
-    try {
-      await pb.collection('users').delete(id);
-      setUsers(users.filter(user => user.id !== id));
-    } catch (error) {
-      console.error("Error deleting user:", error);
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+      try {
+        await api.delete(`/users/${id}`);
+        setUsers(users.filter(user => user.id !== id));
+      } catch (error) {
+        console.error("Error deleting user:", error.response ? error.response.data : 'No response');
+      }
     }
   };
+
+
+
+
 
   const handleEdit = (id) => {
     navigate(`/users/edit/${id}`);

@@ -10,16 +10,6 @@ main{
     display: revert !important;
 }
 
-.container {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 2rem auto;
-    text-align: center;
-}
-
 h1 {
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
