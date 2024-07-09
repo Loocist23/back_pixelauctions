@@ -4,17 +4,21 @@ import pb from '../../pocketbase';
 import '../../styles/auctions.css'; // Import the CSS file
 
 const AuctionCreate = () => {
-  document.title = "Creation d'Enchere";
+  document.title = "Création d'Enchere";
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startingPrice, setStartingPrice] = useState('');
   const [status, setStatus] = useState('open');
   const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleImagesChange = (e) => {
-    setImages(e.target.files);
+    const files = Array.from(e.target.files);
+    setImages(files);
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(previews);
   };
 
   const handleSubmit = async (e) => {
@@ -81,6 +85,14 @@ const AuctionCreate = () => {
             Images:
             <input type="file" multiple onChange={handleImagesChange} />
           </label>
+          <div>
+            <h3>Prévisualisation des images</h3>
+            {imagePreviews.map((preview, index) => (
+                <div key={index}>
+                  <img src={preview} alt="Preview" style={{ width: '100px', height: '100px' }} />
+                </div>
+            ))}
+          </div>
           <button type="submit">Créer</button>
         </form>
         {error && <p id="error-message">{error}</p>}

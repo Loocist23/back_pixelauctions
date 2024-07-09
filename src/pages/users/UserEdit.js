@@ -16,6 +16,7 @@ const UserEdit = () => {
   const [birthdate, setBirthdate] = useState('');
   const [avatar, setAvatar] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [error, setError] = useState('');
   const [favoriteAuctions, setFavoriteAuctions] = useState([]);
   const [allAuctions, setAllAuctions] = useState([]);
@@ -59,7 +60,9 @@ const UserEdit = () => {
   };
 
   const handleAvatarChange = (e) => {
-    setAvatar(e.target.files[0]);
+    const file = e.target.files[0];
+    setAvatar(file);
+    setAvatarPreview(URL.createObjectURL(file));
   };
 
   const handleFavoriteAuctionRemove = async (auctionId) => {
@@ -163,9 +166,9 @@ const UserEdit = () => {
             Avatar:
             <input type="file" onChange={handleAvatarChange} />
           </label>
-          {avatarUrl && (
+          {(avatarPreview || avatarUrl) && (
               <div>
-                <img src={avatarUrl} alt="User Avatar" style={{ width: '100px', height: '100px' }} />
+                <img src={avatarPreview || avatarUrl} alt="User Avatar" style={{ width: '100px', height: '100px' }} />
               </div>
           )}
           <label>

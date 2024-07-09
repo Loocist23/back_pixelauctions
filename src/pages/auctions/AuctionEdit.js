@@ -14,6 +14,7 @@ const AuctionEdit = () => {
   const [status, setStatus] = useState('open');
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -35,7 +36,10 @@ const AuctionEdit = () => {
   }, [id]);
 
   const handleImagesChange = (e) => {
-    setImages(e.target.files);
+    const files = Array.from(e.target.files);
+    setImages(files);
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(previews);
   };
 
   const handleDeleteImage = async (filename) => {
@@ -115,6 +119,14 @@ const AuctionEdit = () => {
             Images:
             <input type="file" multiple onChange={handleImagesChange} />
           </label>
+          <div>
+            <h3>Prévisualisation des nouvelles images</h3>
+            {imagePreviews.map((preview, index) => (
+                <div key={index}>
+                  <img src={preview} alt="Preview" style={{ width: '100px', height: '100px' }} />
+                </div>
+            ))}
+          </div>
           <div>
             <h3>Images existantes</h3>
             {existingImages.map((image) => (

@@ -30,7 +30,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<PrivateRoute element={<Home />} />} />
-          <Route path="/create-auction" element={<PrivateRoute element={<CreateAuction />} />} />
+          <Route path="/auctions/create" element={<PrivateRoute element={<CreateAuction />} />} />
           <Route path="/auctions" element={<PrivateRoute element={<Auctions />} />} />
           <Route path="/auctions/edit/:id" element={<PrivateRoute element={<EditAuction />} />} />
           <Route path="/auctions/:id" element={<PrivateRoute element={<AuctionView />} />} />

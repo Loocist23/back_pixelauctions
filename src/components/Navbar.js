@@ -6,7 +6,7 @@ const Navbar = () => {
     <nav>
       <ul>
         <li><Link to="/">Accueil</Link></li>
-        <li><Link to="/create-auction">Créer une enchère</Link></li>
+        <li><Link to="/auctions/create">Créer une enchère</Link></li>
         <li><Link to="/auctions">Voir les enchères</Link></li>
         <li><Link to="/create-bid">Créer une offre</Link></li>
         <li><Link to="/bids">Voir les offres</Link></li>

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import pb from '../../pocketbase';
 import '../../styles/users.css'; // Import the CSS file
 
 const UserCreate = () => {
-  document.title = "Creation d'utilisateur";
+  document.title = "Création d'utilisateur";
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,11 +11,14 @@ const UserCreate = () => {
   const [role, setRole] = useState('user');
   const [birthdate, setBirthdate] = useState('');
   const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleAvatarChange = (e) => {
-    setAvatar(e.target.files[0]);
+    const file = e.target.files[0];
+    setAvatar(file);
+    setAvatarPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
@@ -36,8 +38,17 @@ const UserCreate = () => {
     }
 
     try {
-      await pb.collection('users').create(formData);
-      await pb.collection('users').requestVerification(email);
+      const response = await fetch('http://localhost:3000/users/create', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create user');
+      }
+
+      const result = await response.json();
+      console.log('User created:', result);
       navigate('/users');
     } catch (error) {
       setError('Failed to create user');
@@ -105,6 +116,11 @@ const UserCreate = () => {
             Avatar:
             <input type="file" onChange={handleAvatarChange} />
           </label>
+          {avatarPreview && (
+              <div>
+                <img src={avatarPreview} alt="Avatar Preview" style={{ width: '100px', height: '100px' }} />
+              </div>
+          )}
           <button type="submit">Create</button>
         </form>
         {error && <p id="error-message">{error}</p>}
