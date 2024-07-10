@@ -8,12 +8,14 @@ const UserList = () => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await api.get(`/users/paginated?page=${page}`); // Utilisez la route API paginée
+        const { data } = await api.get(`/users/paginated?page=${page}&search=${search}&sort=${sort}`); // Utilisez la route API paginée
         setUsers(data.items);
         setTotalPages(data.totalPages);
       } catch (error) {
@@ -22,7 +24,7 @@ const UserList = () => {
     };
 
     fetchUsers();
-  }, [page]);
+  }, [page, search, sort]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
@@ -65,11 +67,33 @@ const UserList = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const handleSortChange = (e) => {
+    setSort(e.target.value);
+  };
+
   return (
       <div className="container">
         <h1>Liste des utilisateurs</h1>
         <Link to="/users/create">Créer un utilisateur</Link>
         <button onClick={handleGenerateUsers}>Générer 20 utilisateurs aléatoires</button>
+        <div>
+          <input
+              type="text"
+              placeholder="Rechercher par nom ou email"
+              value={search}
+              onChange={handleSearchChange}
+          />
+          <select value={sort} onChange={handleSortChange}>
+            <option value="">Trier par</option>
+            <option value="created">Date de création</option>
+            <option value="username">Nom d'utilisateur</option>
+            <option value="email">Email</option>
+          </select>
+        </div>
         <table>
           <thead>
           <tr>
@@ -84,7 +108,9 @@ const UserList = () => {
           {users.map(user => (
               <tr key={user.id}>
                 <td>{user.email}</td>
-                <td>{user.username}</td>
+                <td>
+                  <Link to={`/users/view/${user.id}`}>{user.username}</Link> {/* Correction ici */}
+                </td>
                 <td>{user.role}</td>
                 <td>{new Date(user.birthdate).toLocaleDateString()}</td>
                 <td className="actions">

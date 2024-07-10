@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import pb from "../../pocketbase";
 import '../../styles/users.css'; // Import the CSS file
 
 const UserView = () => {
     document.title = "Utilisateur";
     const { id } = useParams();
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [auctions, setAuctions] = useState([]);
     const [bids, setBids] = useState([]);
@@ -23,21 +25,17 @@ const UserView = () => {
                 const userData = await userResponse.json();
                 setUser(userData);
 
-                // Fetch user's auctions
-                const auctionsResponse = await fetch(`http://localhost:3000/auctions?userId=${id}`);
-                if (!auctionsResponse.ok) {
-                    throw new Error('Error fetching auctions data');
-                }
-                const userAuctions = await auctionsResponse.json();
-                setAuctions(userAuctions);
+                // Fetch user's auctions from PocketBase
+                const auctionsResponse = await pb.collection('auctions').getList(1, 50, {
+                    filter: `userId = "${id}"`
+                });
+                setAuctions(auctionsResponse.items);
 
-                // Fetch user's bids
-                const bidsResponse = await fetch(`http://localhost:3000/bids?userId=${id}`);
-                if (!bidsResponse.ok) {
-                    throw new Error('Error fetching bids data');
-                }
-                const userBids = await bidsResponse.json();
-                setBids(userBids);
+                // Fetch user's bids from PocketBase
+                const bidsResponse = await pb.collection('bids').getList(1, 50, {
+                    filter: `userId = "${id}"`
+                });
+                setBids(bidsResponse.items);
 
                 // Fetch user's favorite auctions
                 const favoritesResponse = await fetch(`http://localhost:3000/users/${id}/favorites`);
@@ -45,7 +43,11 @@ const UserView = () => {
                     throw new Error('Error fetching favorite auctions data');
                 }
                 const userFavorites = await favoritesResponse.json();
-                setFavorites(userFavorites.items.map(item => item.expand.Auction));
+
+                // Vérifiez si item.expand est défini et a la structure attendue
+                if (userFavorites.items) {
+                    setFavorites(userFavorites.items.map(item => item.expand?.Auction || item));
+                }
 
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -108,6 +110,8 @@ const UserView = () => {
                     <p>Aucune enchère favorite trouvée</p>
                 )}
             </ul>
+
+            <button onClick={() => navigate(`/users/edit/${id}`)}>Modifier</button>
         </div>
     );
 };

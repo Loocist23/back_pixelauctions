@@ -7,18 +7,34 @@ const AuctionList = () => {
   document.title = "Gestion des Encheres";
   const [auctions, setAuctions] = useState([]);
   const [users, setUsers] = useState({});
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const controller = new AbortController();
-
     const fetchAuctions = async () => {
       try {
-        const auctionsList = await pb.collection('auctions').getFullList({ $cancelToken: controller.signal });
-        setAuctions(auctionsList);
+        const options = {
+          page,
+          perPage: 10,
+        };
+
+        if (search) {
+          options.filter = `title~"${search}" || description~"${search}"`;
+        }
+
+        if (sort) {
+          options.sort = sort;
+        }
+
+        const response = await pb.collection('auctions').getList(options.page, options.perPage, options);
+        setAuctions(response.items);
+        setTotalPages(response.totalPages);
 
         // Fetch associated users
-        const userIds = [...new Set(auctionsList.map(auction => auction.userId))];
+        const userIds = [...new Set(response.items.map(auction => auction.userId))];
         const usersList = await Promise.all(userIds.filter(id => id !== undefined).map(id => {
           return pb.collection('users').getOne(id).catch((error) => {
             console.log("Error fetching user with id:", id, "Error:", error); // Log the error
@@ -31,27 +47,21 @@ const AuctionList = () => {
         }, {});
         setUsers(usersMap);
       } catch (error) {
-        if (error.name === 'AbortError') {
-          console.log('Fetch cancelled');
-        } else {
-          console.error("Error fetching auctions or users:", error);
-        }
+        console.error("Error fetching auctions or users:", error);
       }
     };
 
     fetchAuctions();
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
+  }, [page, search, sort]);
 
   const handleDelete = async (id) => {
-    try {
-      await pb.collection('auctions').delete(id);
-      setAuctions(auctions.filter(auction => auction.id !== id));
-    } catch (error) {
-      console.error("Error deleting auction:", error);
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette enchère ?")) {
+      try {
+        await pb.collection('auctions').delete(id);
+        setAuctions(auctions.filter(auction => auction.id !== id));
+      } catch (error) {
+        console.error("Error deleting auction:", error);
+      }
     }
   };
 
@@ -59,10 +69,43 @@ const AuctionList = () => {
     navigate(`/auctions/edit/${id}`);
   };
 
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const handleSortChange = (e) => {
+    setSort(e.target.value);
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage(page + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
   return (
       <div className="container">
         <h1>Liste des enchères</h1>
         <Link to="/auctions/create">Créer une enchère</Link>
+        <div>
+          <input
+              type="text"
+              placeholder="Rechercher par titre ou description"
+              value={search}
+              onChange={handleSearchChange}
+          />
+          <select value={sort} onChange={handleSortChange}>
+            <option value="">Trier par</option>
+            <option value="-created">Date de création</option>
+            <option value="title">Titre</option>
+          </select>
+        </div>
         <table>
           <thead>
           <tr>
@@ -98,6 +141,13 @@ const AuctionList = () => {
           ))}
           </tbody>
         </table>
+        {totalPages > 1 && (
+            <div className="pagination">
+              <button onClick={handlePreviousPage} disabled={page === 1}>{'<<<'}</button>
+              <span>Page {page} / {totalPages}</span>
+              <button onClick={handleNextPage} disabled={page === totalPages}>{'>>>'}</button>
+            </div>
+        )}
       </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import pb from '../../pocketbase';
 import '../../styles/users.css'; // Import the CSS file
 
 const UserEdit = () => {
@@ -14,11 +15,14 @@ const UserEdit = () => {
   const [avatar, setAvatar] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('');
+  const [favoriteAuctions, setFavoriteAuctions] = useState([]);
+  const [allAuctions, setAllAuctions] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndAuctions = async () => {
       try {
+        // Fetch user data
         const response = await fetch(`http://localhost:3000/users/${id}`);
         if (!response.ok) {
           throw new Error('Error fetching user data');
@@ -36,12 +40,23 @@ const UserEdit = () => {
           const url = `http://localhost:3000/users/${id}/avatar`;
           setAvatarUrl(url);
         }
+
+        // Fetch all auctions
+        const auctionsResponse = await pb.collection('auctions').getList(1, 100);
+        setAllAuctions(auctionsResponse.items);
+
+        // Fetch favorite auctions
+        const favoriteResponse = await pb.collection('favorite').getList(1, 50, {
+          filter: `User="${id}"`,
+          expand: 'Auction'
+        });
+        setFavoriteAuctions(favoriteResponse.items);
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchUser();
+    fetchUserAndAuctions();
   }, [id]);
 
   const formatDate = (dateString) => {
@@ -56,6 +71,36 @@ const UserEdit = () => {
     const file = e.target.files[0];
     setAvatar(file);
     setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const handleFavoriteAuctionRemove = async (auctionId) => {
+    const favorite = favoriteAuctions.find(item => item.expand.Auction.id === auctionId);
+    if (favorite) {
+      try {
+        await pb.collection('favorite').delete(favorite.id);
+        setFavoriteAuctions(favoriteAuctions.filter(item => item.id !== favorite.id));
+      } catch (error) {
+        console.error("Error removing favorite auction:", error);
+      }
+    }
+  };
+
+  const handleFavoriteAuctionAdd = async (e) => {
+    const auctionId = e.target.value;
+    if (auctionId && !favoriteAuctions.find(item => item.expand.Auction.id === auctionId)) {
+      const auction = allAuctions.find(auction => auction.id === auctionId);
+      if (auction) {
+        try {
+          const newFavorite = await pb.collection('favorite').create({
+            User: id,
+            Auction: auctionId
+          });
+          setFavoriteAuctions([...favoriteAuctions, { ...newFavorite, expand: { Auction: auction } }]);
+        } catch (error) {
+          console.error("Error adding favorite auction:", error);
+        }
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -137,6 +182,22 @@ const UserEdit = () => {
                 <img src={avatarPreview || avatarUrl} alt="User Avatar" style={{ width: '100px', height: '100px' }} />
               </div>
           )}
+          <label>
+            Favorite Auctions:
+            <ul>
+              {favoriteAuctions.map(item => (
+                  <li key={item.id}>
+                    {item.expand.Auction.title} <button type="button" onClick={() => handleFavoriteAuctionRemove(item.expand.Auction.id)}>Remove</button>
+                  </li>
+              ))}
+            </ul>
+            <select onChange={handleFavoriteAuctionAdd} value="">
+              <option value="" disabled>Select an auction to add</option>
+              {allAuctions.map(auction => (
+                  <option key={auction.id} value={auction.id}>{auction.title}</option>
+              ))}
+            </select>
+          </label>
           <button type="submit">Enregistrer</button>
         </form>
         {error && <p id="error-message">{error}</p>}
