@@ -1,70 +1,47 @@
-# Getting Started with Create React App
+# PixelAuction
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Bienvenue sur PixelAuction, une plateforme d'enchères en ligne qui permet aux utilisateurs de créer, voir, et gérer des enchères et des offres. Notre objectif est de fournir un espace sécurisé et fiable pour que les utilisateurs puissent participer à des enchères excitantes, faire des offres sur des articles intéressants, et gérer leurs enchères et leurs offres de manière efficace.
 
-## Available Scripts
+## Fonctionnalités
 
-In the project directory, you can run:
+### Pour tous les utilisateurs
 
-### `npm start`
+- **Voir les enchères en cours** : Les utilisateurs peuvent parcourir toutes les enchères disponibles sur la plateforme.
+- **Participer aux enchères** : Les utilisateurs peuvent faire des offres sur les enchères qui les intéressent.
+- **Voir les détails des enchères** : Accès aux informations détaillées de chaque enchère, y compris le titre, la description, le prix de départ, et l'état de l'enchère.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Pour les utilisateurs enregistrés
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Créer des enchères** : Les utilisateurs peuvent créer leurs propres enchères, en spécifiant le titre, la description, et le prix de départ.
+- **Gérer les enchères** : Les utilisateurs ont la possibilité de modifier ou de supprimer leurs enchères.
+- **Gérer les offres** : Les utilisateurs peuvent voir toutes les offres qu'ils ont faites et les gérer.
 
-### `npm test`
+### Administration
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Gestion des utilisateurs** : Les administrateurs peuvent créer, modifier, et supprimer des utilisateurs.
+- **Génération d'utilisateurs aléatoires** : Les administrateurs peuvent générer des utilisateurs aléatoires pour tester la plateforme.
+- **Gestion des enchères et des offres** : Les administrateurs ont accès à toutes les enchères et offres pour les gérer.
 
-### `npm run build`
+## Technologies Utilisées
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- React pour le front-end
+- PocketBase pour la base de données et l'authentification
+- Axios pour les requêtes API
+- React Router pour la navigation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Installation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Pour exécuter ce projet localement, suivez ces étapes :
 
-### `npm run eject`
+1. Clonez le dépôt sur votre machine locale.
+2. Installez les dépendances en exécutant `npm install`.
+3. Lancez le serveur de développement avec `npm start`.
+4. Accédez à `http://localhost:3000` dans votre navigateur.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Contribution
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Les contributions sont toujours les bienvenues ! N'hésitez pas à ouvrir une issue ou à soumettre une pull request.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Licence
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
