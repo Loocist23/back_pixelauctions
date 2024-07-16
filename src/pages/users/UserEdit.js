@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import pb from '../../pocketbase';
-import '../../styles/users.css'; // Import the CSS file
+import '../../styles/users.css'; // Importation du fichier CSS
 
 const UserEdit = () => {
-  document.title = "Modification d'utilisateur";
-  const { id } = useParams();
-  const navigate = useNavigate();
+  document.title = "Modification d'utilisateur"; // Mise à jour du titre de la page
+
+  const { id } = useParams(); // Récupération de l'ID de l'utilisateur à partir des paramètres de l'URL
+  const navigate = useNavigate(); // Hook pour la navigation
+
+  // Déclaration des états pour gérer les données de l'utilisateur et les états du formulaire
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -19,10 +22,11 @@ const UserEdit = () => {
   const [allAuctions, setAllAuctions] = useState([]);
   const [error, setError] = useState('');
 
+  // Hook useEffect pour récupérer les données de l'utilisateur et des enchères lors du montage du composant
   useEffect(() => {
     const fetchUserAndAuctions = async () => {
       try {
-        // Fetch user data
+        // Récupération des données de l'utilisateur
         const response = await fetch(`http://localhost:3000/users/${id}`);
         if (!response.ok) {
           throw new Error('Error fetching user data');
@@ -30,7 +34,7 @@ const UserEdit = () => {
         const userData = await response.json();
         console.log('userData:', userData);
 
-        setUser(userData);
+        setUser(userData); // Mise à jour de l'état de l'utilisateur
         setUsername(userData.username);
         setEmail(userData.email);
         setRole(userData.role);
@@ -38,27 +42,28 @@ const UserEdit = () => {
 
         if (userData.avatar) {
           const url = `http://localhost:3000/users/${id}/avatar`;
-          setAvatarUrl(url);
+          setAvatarUrl(url); // Mise à jour de l'URL de l'avatar
         }
 
-        // Fetch all auctions
+        // Récupération de toutes les enchères
         const auctionsResponse = await pb.collection('auctions').getList(1, 100);
         setAllAuctions(auctionsResponse.items);
 
-        // Fetch favorite auctions
+        // Récupération des enchères favorites de l'utilisateur
         const favoriteResponse = await pb.collection('favorite').getList(1, 50, {
           filter: `User="${id}"`,
           expand: 'Auction'
         });
-        setFavoriteAuctions(favoriteResponse.items);
+        setFavoriteAuctions(favoriteResponse.items); // Mise à jour des enchères favorites
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
-    fetchUserAndAuctions();
+    fetchUserAndAuctions(); // Appel de la fonction de récupération des données
   }, [id]);
 
+  // Fonction pour formater la date au format YYYY-MM-DD
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -67,24 +72,27 @@ const UserEdit = () => {
     return `${year}-${month}-${day}`;
   };
 
+  // Fonction pour gérer le changement d'avatar
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    setAvatar(file);
-    setAvatarPreview(URL.createObjectURL(file));
+    setAvatar(file); // Mise à jour de l'état de l'avatar
+    setAvatarPreview(URL.createObjectURL(file)); // Prévisualisation de l'avatar
   };
 
+  // Fonction pour supprimer une enchère favorite
   const handleFavoriteAuctionRemove = async (auctionId) => {
     const favorite = favoriteAuctions.find(item => item.expand.Auction.id === auctionId);
     if (favorite) {
       try {
-        await pb.collection('favorite').delete(favorite.id);
-        setFavoriteAuctions(favoriteAuctions.filter(item => item.id !== favorite.id));
+        await pb.collection('favorite').delete(favorite.id); // Suppression de l'enchère favorite
+        setFavoriteAuctions(favoriteAuctions.filter(item => item.id !== favorite.id)); // Mise à jour de la liste des enchères favorites
       } catch (error) {
         console.error("Error removing favorite auction:", error);
       }
     }
   };
 
+  // Fonction pour ajouter une enchère favorite
   const handleFavoriteAuctionAdd = async (e) => {
     const auctionId = e.target.value;
     if (auctionId && !favoriteAuctions.find(item => item.expand.Auction.id === auctionId)) {
@@ -95,7 +103,7 @@ const UserEdit = () => {
             User: id,
             Auction: auctionId
           });
-          setFavoriteAuctions([...favoriteAuctions, { ...newFavorite, expand: { Auction: auction } }]);
+          setFavoriteAuctions([...favoriteAuctions, { ...newFavorite, expand: { Auction: auction } }]); // Ajout de la nouvelle enchère favorite
         } catch (error) {
           console.error("Error adding favorite auction:", error);
         }
@@ -103,6 +111,7 @@ const UserEdit = () => {
     }
   };
 
+  // Fonction pour soumettre le formulaire de modification de l'utilisateur
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -113,7 +122,7 @@ const UserEdit = () => {
     formData.append('birthdate', birthdate);
 
     if (avatar) {
-      formData.append('avatar', avatar);
+      formData.append('avatar', avatar); // Ajout de l'avatar si présent
     }
 
     try {
@@ -126,14 +135,14 @@ const UserEdit = () => {
         throw new Error('Failed to update user');
       }
 
-      navigate('/users');
+      navigate('/users'); // Redirection vers la liste des utilisateurs après modification réussie
     } catch (error) {
       setError('Failed to update user');
       console.error("Error updating user:", error);
     }
   };
 
-  if (!user) return <div>Loading...</div>;
+  if (!user) return <div>Loading...</div>; // Affichage du chargement si les données de l'utilisateur ne sont pas encore disponibles
 
   return (
       <div className="container">
@@ -200,7 +209,7 @@ const UserEdit = () => {
           </label>
           <button type="submit">Enregistrer</button>
         </form>
-        {error && <p id="error-message">{error}</p>}
+        {error && <p id="error-message">{error}</p>} {/* Affichage des erreurs */}
       </div>
   );
 };

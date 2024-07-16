@@ -3,27 +3,43 @@ import { useNavigate } from 'react-router-dom';
 import pb from '../pocketbase';
 import '../styles/login.css'; // Import the login CSS
 
+/**
+ * Represents the login component for admin users.
+ * This component allows admin users to log in to the application.
+ */
 const Login = () => {
+  // Set the document title to "Login"
   document.title = "Login";
+
+  // State hooks for email, password, and error message
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  // Hook to navigate programmatically
   const navigate = useNavigate();
 
+  /**
+   * Handles the form submission for login.
+   * Authenticates the user with email and password.
+   * Redirects to the home page if authentication is successful and user is an admin.
+   * Otherwise, displays an error message.
+   *
+   * @param {Object} e - The event object.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Authenticate the user with PocketBase
       const authData = await pb.collection('users').authWithPassword(email, password);
 
-      console.log("Auth Data:", authData);  // Log the authentication data
+      // Retrieve the authenticated user's details
+      const user = await pb.collection('users').getOne(authData.record.id);
 
       // Check if the user is an admin
-      const user = await pb.collection('users').getOne(authData.record.id);
-      console.log("User Data:", user);  // Log the user data
-
       if (user.role !== 'admin') {
         setError('Access denied: Admins only');
-        pb.authStore.clear(); // Clear the auth store
+        pb.authStore.clear(); // Clear the auth store if not an admin
         return;
       }
 
@@ -52,7 +68,6 @@ const Login = () => {
           {error && <p id="error-message">{error}</p>}
         </div>
       </div>
-
   );
 };
 

@@ -4,9 +4,16 @@ import pb from "../../pocketbase";
 import '../../styles/users.css'; // Import the CSS file
 
 const UserView = () => {
+    // Mise à jour du titre du document
     document.title = "Utilisateur";
+
+    // Récupération de l'ID de l'utilisateur à partir des paramètres d'URL
     const { id } = useParams();
+
+    // Initialisation du hook de navigation
     const navigate = useNavigate();
+
+    // Déclaration des états pour les données de l'utilisateur, les enchères, les offres, les favoris, le chargement et les erreurs
     const [user, setUser] = useState(null);
     const [auctions, setAuctions] = useState([]);
     const [bids, setBids] = useState([]);
@@ -14,10 +21,11 @@ const UserView = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Hook d'effet pour récupérer les données utilisateur lors du montage du composant et chaque fois que l'ID change
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                // Fetch user data
+                // Récupération des données de l'utilisateur depuis l'API locale
                 const userResponse = await fetch(`http://localhost:3000/users/${id}`);
                 if (!userResponse.ok) {
                     throw new Error('Error fetching user data');
@@ -25,41 +33,45 @@ const UserView = () => {
                 const userData = await userResponse.json();
                 setUser(userData);
 
-                // Fetch user's auctions from PocketBase
+                // Récupération des enchères de l'utilisateur depuis PocketBase
                 const auctionsResponse = await pb.collection('auctions').getList(1, 50, {
                     filter: `userId = "${id}"`
                 });
                 setAuctions(auctionsResponse.items);
 
-                // Fetch user's bids from PocketBase
+                // Récupération des offres de l'utilisateur depuis PocketBase
                 const bidsResponse = await pb.collection('bids').getList(1, 50, {
                     filter: `userId = "${id}"`
                 });
                 setBids(bidsResponse.items);
 
-                // Fetch user's favorite auctions
+                // Récupération des enchères favorites de l'utilisateur depuis l'API locale
                 const favoritesResponse = await fetch(`http://localhost:3000/users/${id}/favorites`);
                 if (!favoritesResponse.ok) {
                     throw new Error('Error fetching favorite auctions data');
                 }
                 const userFavorites = await favoritesResponse.json();
 
-                // Vérifiez si item.expand est défini et a la structure attendue
+                // Vérification de la structure des favoris et mise à jour de l'état
                 if (userFavorites.items) {
                     setFavorites(userFavorites.items.map(item => item.expand?.Auction || item));
                 }
 
             } catch (error) {
+                // Gestion des erreurs lors de la récupération des données
                 console.error('Error fetching user data:', error);
                 setError('Error fetching user data');
             } finally {
+                // Mise à jour de l'état de chargement à la fin de la récupération des données
                 setLoading(false);
             }
         };
 
+        // Appel de la fonction de récupération des données utilisateur
         fetchUserData();
     }, [id]);
 
+    // Affichage d'un message de chargement ou d'erreur si nécessaire
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
     if (!user) return <div>User not found</div>;
@@ -111,6 +123,7 @@ const UserView = () => {
                 )}
             </ul>
 
+            {/* Bouton pour naviguer vers la page de modification de l'utilisateur */}
             <button onClick={() => navigate(`/users/edit/${id}`)}>Modifier</button>
         </div>
     );
